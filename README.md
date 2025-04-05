@@ -1,5 +1,4 @@
-# [CuttingEEG 2018](https://cuttingeeg2018.org/)
-Code for workshop given at CuttingEEG'2018 Paris conference.
+Code for workshop given at [CuttingEEG](https://cuttingeeg2018.org/) 2018 (Paris) conference.
 
 #### 
 
