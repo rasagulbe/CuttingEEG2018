@@ -1,0 +1,725 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Code_Gulbinaite_CuttingEEG_2018</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-06-30"><meta name="DC.source" content="Code_Gulbinaite_CuttingEEG_2018.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">This code was created for the workshop "Separating alpha sources"</a></li><li><a href="#2">Add EEG lab to your path</a></li><li><a href="#3">Plotting channel power spectra</a></li><li><a href="#4">Remove eye-blink and other artifactual ICs (e.g. muscle artifacts):</a></li><li><a href="#5">Filter the data 5 to 15 Hz</a></li><li><a href="#6">Perform ICA only on the pre-stimulus data -1000 - 0 ms</a></li><li><a href="#7">Plot alpha IC topographies and spectra</a></li><li><a href="#8">Creating Head Model</a></li><li><a href="#9">Dipole fitting</a></li><li><a href="#10">Visualizing dipoles</a></li><li><a href="#11">Find parietal and occipital dipoles based on anatomical coordinates</a></li><li><a href="#12">Find occipital &amp; parietal ICs - sorting method using distance and RV info</a></li><li><a href="#13">Exploring DataSet 2 - RUN all the steps above</a></li><li><a href="#14">Apply ICA weights to unfiltetered data:</a></li><li><a href="#15">END</a></li></ul></div><h2>This code was created for the workshop "Separating alpha sources"<a name="1"></a></h2><p>at CuttingEEG'18, Paris</p><pre class="codeinput"><span class="comment">% Created by: Rasa Gulbinaite (rasagulbinaite.com)</span>
+</pre><h2>Add EEG lab to your path<a name="2"></a></h2><pre class="codeinput">eeglabfolder = uigetdir([],<span class="string">'search for EEGLAB folder'</span>);
+<span class="comment">% addpath(genpath(eeglabfolder))</span>
+
+<span class="comment">% load EEG data</span>
+load(<span class="string">'M:\CUTTING_EEG\Dataset1.mat'</span>)
+
+EEG1_original = EEG;
+</pre><h2>Plotting channel power spectra<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Parameters for FFT</span>
+time4fft = [-1000 0];                             <span class="comment">% time window for FFT</span>
+tidx     = dsearchn(EEG.times',time4fft');        <span class="comment">% time window in indices</span>
+Nsig     = length(tidx(1):tidx(2));
+fft_resolution = 0.1;                             <span class="comment">% frequency resolution of the spectra</span>
+Nfft = ceil( EEG.srate/fft_resolution );          <span class="comment">% length of the FFT result</span>
+frequencies = EEG.srate/2*linspace(0,1,Nfft/2+1); <span class="comment">% frequencies</span>
+
+
+<span class="comment">% Alpha-band or where we will look for individual alpha peak frequencies</span>
+alphafreqs   = [7 13];
+alphafreqidx = dsearchn(frequencies',alphafreqs');
+
+
+<span class="comment">% Define variables to store the results</span>
+alphapeakfreq = zeros(1,EEG.nbchan);
+alphapeakval  = zeros(1,EEG.nbchan);
+
+
+<span class="comment">% The actual FFT</span>
+data4fft = EEG.data(:,tidx(1):tidx(2),:) ;                    <span class="comment">% select only part inter-trial interval data</span>
+fftresult = fft(data4fft,Nfft,2)/Nsig;
+fftpower  = mean(abs(fftresult(:,floor(1:Nfft/2+1),:)).^2,3); <span class="comment">% compute power</span>
+
+<span class="comment">% Find alpha peaks in power spectra of each channel</span>
+<span class="keyword">for</span> chani = 1:EEG.nbchan
+    [alphapeakval(chani),alphapeakindex] = max(fftpower(chani,alphafreqidx(1):alphafreqidx(2)));
+    alphapeakfreq(chani) = frequencies(alphapeakindex+alphafreqidx(1)-1);
+<span class="keyword">end</span>
+
+
+<span class="comment">% PLOT</span>
+chans2plot = {<span class="string">'Oz'</span>};
+chans2plot_idx = find(strcmpi(chans2plot,{EEG.chanlocs.labels}));
+
+figure(1), clf, set(gcf,<span class="string">'name'</span>,<span class="string">'Channel spectra'</span>)
+set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+
+subplot(121)
+plot(frequencies,fftpower);
+hold <span class="string">on</span>
+h1 = plot(frequencies,fftpower(chans2plot_idx,:),<span class="string">'b-'</span>,<span class="string">'Linewidth'</span>, 4,<span class="string">'MarkerFaceColor'</span>,<span class="string">'w'</span>);
+set(gca,<span class="string">'xlim'</span>,[2 14],<span class="string">'ylim'</span>,[0 40],<span class="string">'box'</span>,<span class="string">'off'</span>)
+axis <span class="string">square</span>
+legend(h1,<span class="string">'Oz electrode'</span>)
+title(<span class="string">'Power spectra across channels'</span>)
+
+subplot(122)
+plot(alphapeakfreq,alphapeakval,<span class="string">'b*'</span>)
+h2 = histc(alphapeakfreq,median(alphapeakfreq)-1:fft_resolution:median(alphapeakfreq)+1);
+hold <span class="string">on</span>
+plot(median(alphapeakfreq)-1:fft_resolution:median(alphapeakfreq)+1,h2,<span class="string">'ro-'</span>)
+set(gca,<span class="string">'xlim'</span>,[median(alphapeakfreq)-1 median(alphapeakfreq)+1],<span class="string">'box'</span>,<span class="string">'off'</span>)
+title(<span class="string">'Peak frequency distribution across channels'</span>)
+axis <span class="string">square</span>
+</pre><img vspace="5" hspace="5" src="Code_Gulbinaite_CuttingEEG_2018_01.png" alt=""> <h2>Remove eye-blink and other artifactual ICs (e.g. muscle artifacts):<a name="4"></a></h2><p>can be identified by visual inspection (topography and power spectra) or specific toolboxes e.g. SASICA by Maximilian Chaumon https://github.com/dnacombo/SASICA/</p><pre class="codeinput">EEG.data = double(EEG.data);
+EEG.icaact =  eeg_getica(EEG);
+
+<span class="comment">% PLOT</span>
+figure(2), set(gcf,<span class="string">'name'</span>, <span class="string">'ICs 1-6'</span>)
+<span class="keyword">for</span> compi = 1:6
+
+    subplot(1,6,compi)
+    topoplot(squeeze(EEG.icawinv(:,compi)),EEG.chanlocs,<span class="string">'plotrad'</span>,.75,<span class="string">'numcontour'</span>,0,<span class="string">'electrodes'</span>,<span class="string">'off'</span>);
+    title({[<span class="string">'IC: '</span> num2str(compi)]})
+
+<span class="keyword">end</span>
+set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+
+<span class="comment">% Remove blink components</span>
+ICs2remove  = [1 2]; <span class="comment">% dataset2 ICs2remove  = 1;</span>
+EEG = pop_subcomp(EEG,ICs2remove);
+
+<span class="comment">% clear ICA information - we will run ICA again on filtered data</span>
+EEG.icawinv     = [];
+EEG.icasphere   = [];
+EEG.icaweights  = [];
+EEG.icachansind = [];
+</pre><pre class="codeoutput">Recomputing ICA activations
+Computing projection ....
+</pre><img vspace="5" hspace="5" src="Code_Gulbinaite_CuttingEEG_2018_02.png" alt=""> <h2>Filter the data 5 to 15 Hz<a name="5"></a></h2><pre class="codeinput"><span class="comment">% Filter parameters</span>
+freq_band = [5 15]; <span class="comment">% in hz</span>
+trans_width    = .15;
+idealresponse  = [ 0 0 1 1 0 0 ];
+filtfreqbounds = [ 0 (1-trans_width)*freq_band(1) freq_band(1) freq_band(2) freq_band(2)*(1+trans_width) EEG.srate/2 ]/(EEG.srate/2);
+filt_order     = round(3*(EEG.srate/freq_band(1))); <span class="comment">% try changing 3 to 10, and plotting filter kernel</span>
+filterweights  = firls(filt_order,filtfreqbounds,idealresponse);
+
+<span class="comment">% PLOT filter kernel</span>
+figure(3), clf, set(gcf,<span class="string">'name'</span>,<span class="string">'Filter kernel'</span>)
+nyquist = EEG.srate/2;
+fft_filtkern  = abs(fft(filterweights));
+fft_filtkern  = fft_filtkern./max(fft_filtkern); <span class="comment">% normalized to 1.0 for visual comparison ease</span>
+hz_filtkern   = linspace(0,nyquist,filt_order/2+1);
+plot(hz_filtkern,fft_filtkern(1:ceil(length(fft_filtkern)/2)),<span class="string">'m-'</span>)
+set(gca,<span class="string">'xlim'</span>,[0 20])
+
+<span class="comment">% Filter the data 5-15 Hz</span>
+filterdata = zeros(EEG.nbchan,EEG.pnts,EEG.trials);
+<span class="keyword">for</span> chani=1:EEG.nbchan
+<span class="comment">%     disp(chani);</span>
+    filterdata(chani,:,:) = reshape( filtfilt(filterweights,1,double(reshape(EEG.data(chani,:,:),1,EEG.pnts*EEG.trials))) ,EEG.pnts,EEG.trials);
+<span class="keyword">end</span>
+
+<span class="comment">% Alternative filtering using EEGLAB</span>
+<span class="comment">% filterdata = pop_eegfiltnew( EEG, 5, 15,[],0); % band-pass filter</span>
+
+<span class="comment">% Replace EEG.data with filtered data</span>
+EEG.data = filterdata;
+
+<span class="comment">% save results</span>
+<span class="comment">% EEG.icaact = [];</span>
+<span class="comment">% EEG.data = single(EEG.data);</span>
+<span class="comment">% save('...\Dataset1_filtered.mat','EEG')</span>
+</pre><img vspace="5" hspace="5" src="Code_Gulbinaite_CuttingEEG_2018_03.png" alt=""> <h2>Perform ICA only on the pre-stimulus data -1000 - 0 ms<a name="6"></a></h2><pre class="codeinput">time4ica  = [-1 0];                       <span class="comment">% in seconds</span>
+EEG = pop_select(EEG, <span class="string">'time'</span>, time4ica);  <span class="comment">% trim the data</span>
+
+<span class="comment">% Run ICA on pre-stimulus aka trimmed data</span>
+ncomponents = 20;
+EEG.data = double(EEG.data);
+EEG      = pop_runica(EEG,<span class="string">'icatype'</span>,<span class="string">'jader'</span>,<span class="string">'dataset'</span>,1,<span class="string">'options'</span>,{ncomponents});
+
+<span class="comment">% save results</span>
+<span class="comment">% EEG.icaact = [];</span>
+<span class="comment">% EEG.data = single(EEG.data);</span>
+<span class="comment">% save('...\Dataset1_filtered_withICA.mat','EEG')</span>
+</pre><pre class="codeoutput">Epoching...
+
+Attempting to convert data matrix to double precision for more accurate ICA results.
+jade -&gt; Looking for 20 sources
+jade -&gt; Removing the mean value
+jade -&gt; Whitening the data
+jade -&gt; Estimating cumulant matrices
+jade -&gt; Initialization of the diagonalization
+jade -&gt; Contrast optimization by joint diagonalization
+jade -&gt; Sweep #0
+jade -&gt; Sweep #1
+jade -&gt; Sweep #2
+jade -&gt; Sweep #3
+jade -&gt; Sweep #4
+jade -&gt; Sweep #5
+jade -&gt; Sweep #6
+jade -&gt; Sweep #7
+jade -&gt; Sweep #8
+jade -&gt; Sweep #9
+jade -&gt; Sweep #10
+jade -&gt; Sweep #11
+jade -&gt; Sweep #12
+jade -&gt; Sweep #13
+jade -&gt; Sweep #14
+jade -&gt; Sweep #15
+jade -&gt; Sweep #16
+jade -&gt; Sweep #17
+jade -&gt; Sweep #18
+jade -&gt; Total of 2361 Givens rotations
+jade -&gt; Sorting the components
+jade -&gt; Fixing the signs
+Scaling components to RMS microvolt
+eeg_checkset: recomputing the ICA activation matrix ...
+</pre><h2>Plot alpha IC topographies and spectra<a name="7"></a></h2><pre class="codeinput"><span class="comment">% Parameters for FFT - same as before except</span>
+Nsig = EEG.pnts;
+
+<span class="comment">% Define variables to store the results</span>
+fftpower      = zeros(ncomponents,length(frequencies));
+alphapeakfreq = zeros(1,ncomponents);
+alphapeakval  = zeros(1,ncomponents);
+
+<span class="comment">% Get ICA activation</span>
+EEG.icaact = eeg_getica(EEG);
+
+<span class="comment">% The actual FFT loop</span>
+
+<span class="keyword">for</span> compi = 1:ncomponents
+    <span class="comment">% get data</span>
+    data_signal = squeeze(EEG.icaact(compi,:,:)) ;
+
+    <span class="comment">% compute power</span>
+    fftresult = fft(data_signal,Nfft)/Nsig;
+    fftpower(compi,:) = mean(abs(fftresult(floor(1:Nfft/2+1),:)).^2,2);
+
+    [alphapeakval(compi),alphapeakindex] = max(fftpower(compi,alphafreqidx(1):alphafreqidx(2)));
+    alphapeakfreq(compi) = frequencies(alphapeakindex+alphafreqidx(1)-1);
+<span class="keyword">end</span>
+
+<span class="comment">% PLOT: component topographies (ICA weights) and component power spectra</span>
+figure(4), clf, set(gcf,<span class="string">'name'</span>, <span class="string">'ICs 1-6'</span>)
+<span class="keyword">for</span> compi = 1:6
+
+    subplot(2,6,compi)
+    topoplot(squeeze(EEG.icawinv(:,compi)),EEG.chanlocs,<span class="string">'plotrad'</span>,.75,<span class="string">'numcontour'</span>,0,<span class="string">'electrodes'</span>,<span class="string">'off'</span>);
+
+    <span class="comment">% Print dipole location above topoplot</span>
+    title({[<span class="string">'IC: '</span> num2str(compi)]})
+
+    ax(compi+6) = subplot(2,6,compi+6);
+    plot(frequencies,squeeze(fftpower(compi,:)) ,<span class="string">'b'</span>,<span class="string">'Linewidth'</span>,1.5);
+    hold <span class="string">on</span>
+    plot(alphapeakfreq(compi),alphapeakval(compi),<span class="string">'*k'</span>);
+
+    set(gca,<span class="string">'xlim'</span>,[5 15]);
+    title([<span class="string">'IC: '</span> num2str(compi) <span class="string">', '</span> num2str(alphapeakfreq(compi)) <span class="string">' Hz'</span> ]);
+
+<span class="keyword">end</span>
+set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+
+figure(5),clf, set(gcf,<span class="string">'name'</span>, <span class="string">'ICs 7-12'</span>)
+<span class="keyword">for</span> compi = 1:6
+
+    subplot(2,6,compi)
+    topoplot(squeeze(EEG.icawinv(:,compi+6)),EEG.chanlocs,<span class="string">'plotrad'</span>,.75,<span class="string">'numcontour'</span>,0,<span class="string">'electrodes'</span>,<span class="string">'off'</span>);
+
+    <span class="comment">% Print dipole location above topoplot</span>
+    title({[<span class="string">'IC: '</span> num2str(compi+6)]})
+
+    ax(compi+6) = subplot(2,6,compi+6);
+    plot(frequencies,squeeze(fftpower(compi+6,:)) ,<span class="string">'b'</span>,<span class="string">'Linewidth'</span>,1.5);
+    hold <span class="string">on</span>
+    plot(alphapeakfreq(compi+6),alphapeakval(compi+6),<span class="string">'*k'</span>);
+
+    set(gca,<span class="string">'xlim'</span>,[5 15]);
+    title([<span class="string">'IC: '</span> num2str(compi+6) <span class="string">', '</span> num2str(alphapeakfreq(compi+6)) <span class="string">' Hz'</span> ]);
+
+<span class="keyword">end</span>
+set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+</pre><pre class="codeoutput">
+</pre><img vspace="5" hspace="5" src="Code_Gulbinaite_CuttingEEG_2018_04.png" alt=""> <img vspace="5" hspace="5" src="Code_Gulbinaite_CuttingEEG_2018_05.png" alt=""> <h2>Creating Head Model<a name="8"></a></h2><p>Done through EEGLab GUI</p><h2>Dipole fitting<a name="9"></a></h2><pre class="codeinput"><span class="comment">% Load headmodel</span>
+load(<span class="string">'M:\CUTTING_EEG\dipfitBEM.mat'</span>)
+
+<span class="comment">% Use head model</span>
+EEG.dipfit = dipfitBEM;
+
+<span class="comment">% Perform dipole fitting</span>
+EEGsingledipole = pop_multifit(EEG, [],<span class="string">'threshold'</span>,100,<span class="string">'rmout'</span>,<span class="string">'on'</span>,<span class="string">'dipoles'</span>,1);
+EEG.dipfit = EEGsingledipole.dipfit;
+
+<span class="comment">% save</span>
+<span class="comment">% EEG.icaact      = [];</span>
+<span class="comment">% EEG.data = single(EEG.data);</span>
+<span class="comment">% save('...\Dataset1_filtered_withICA_dipfit.mat','EEG')</span>
+</pre><pre class="codeoutput">Scanning dipolar grid to find acceptable starting positions...
+Transforming electrode coordinates to match head model
+
+</pre><h2>Visualizing dipoles<a name="10"></a></h2><pre class="codeinput">figure(6)
+pop_dipplot(EEG, [], <span class="string">'mri'</span>,[ eeglabfolder <span class="string">'\plugins\dipfit2.3\standard_BEM\standard_mri.mat'</span>],<span class="string">'normlen'</span>, <span class="string">'on'</span>,<span class="string">'projlines'</span>,<span class="string">'on'</span>);
+</pre> <img vspace="5" hspace="5" src="Code_Gulbinaite_CuttingEEG_2018_07.png" alt=""> <h2>Find parietal and occipital dipoles based on anatomical coordinates<a name="11"></a></h2><pre class="codeinput"><span class="comment">% Coordinates from Haegens et al., 2014 NeuroImage</span>
+rois = [ -20 -90 0; 20 -90 0; -20 -70 50; 20 -70 50]; <span class="comment">% occ R ; occ L; par R; par L</span>
+
+<span class="comment">%  Reject overall poor dipole fits: dipoles for which rv &gt; 5%</span>
+EEG.dipfit.model  = dipfit_reject(EEG.dipfit.model, 5/100);
+
+<span class="comment">% Compute euclidian distance (i.e. 3D distance) to all ROIs</span>
+eucdist = zeros(4,numel(EEG.dipfit.model));
+<span class="keyword">for</span> iroi = 1:size(rois,1)
+    <span class="keyword">for</span> di = 1:numel(EEG.dipfit.model)
+        <span class="keyword">if</span> EEG.dipfit.model(di).rv &lt; 1
+            eucdist(iroi,di)=sqrt( (EEG.dipfit.model(di).posxyz(1) - rois(iroi,1))^2 + (EEG.dipfit.model(di).posxyz(2) - rois(iroi,2))^2 + (EEG.dipfit.model(di).posxyz(3) - rois(iroi,3))^2 );
+
+        <span class="keyword">else</span>
+            eucdist(iroi,di) = NaN;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>Find occipital &amp; parietal ICs - sorting method using distance and RV info<a name="12"></a></h2><pre class="codeinput"><span class="comment">% OCCIPITAL</span>
+dipoleinfo = zeros(ncomponents*2,4); <span class="comment">%(1) eucldist (2) RV (3) which ROI (4) which IC</span>
+dipoleinfo(:,1) = [eucdist(1,:) eucdist(2,:) ];
+dipoleinfo(:,2) = repmat([EEG.dipfit.model.rv]',2,1 );
+dipoleinfo(:,3) = ceil(linspace(eps,2,40)');
+dipoleinfo(:,4) = repmat((1:ncomponents)',2,1);
+
+dipoleinfo_sorted = sortrows(dipoleinfo,[1 2]); <span class="comment">% first sorting by distance then by RV</span>
+<span class="comment">% dipoleinfo_sorted = sortrows(dipoleinfo,[2 1]); % first sorting by RV, then by euclidian distance</span>
+occIC = dipoleinfo_sorted(1,4);
+
+<span class="comment">% PARIETAL</span>
+dipoleinfo(:,1) = [eucdist(3,:) eucdist(4,:) ];
+
+dipoleinfo_sorted = sortrows(dipoleinfo,[1 2]); <span class="comment">% first sorting by distance then by RV</span>
+<span class="comment">% dipoleinfo_sorted = sortrows(dipoleinfo,[2 1]); % first sorting by RV, then by euclidian distance</span>
+
+parIC = dipoleinfo_sorted(1,4);
+
+<span class="comment">% if the same dipole was found as occ and par</span>
+<span class="keyword">if</span> occIC  == parIC
+    dipoleinfo(occIC,1) = NaN;
+    dipoleinfo_sorted = sortrows(dipoleinfo,[1 2]);
+    parIC = dipoleinfo_sorted(1,4);
+<span class="keyword">end</span>
+
+<span class="comment">% PLOT</span>
+comps2plot = [occIC parIC];
+titles = {<span class="string">'occipital'</span> <span class="string">'parietal'</span>};
+
+figure(7), clf, set(gcf,<span class="string">'name'</span>, <span class="string">'Alpha sources'</span>)
+<span class="keyword">for</span> compi = 1:length(comps2plot)
+    subplot(2,2,compi)
+    topoplot(squeeze(EEG.icawinv(:,comps2plot(compi))),EEG.chanlocs,<span class="string">'plotrad'</span>,.75,<span class="string">'numcontour'</span>,0,<span class="string">'electrodes'</span>,<span class="string">'off'</span>);
+    title(titles{compi})
+
+    ax(compi+2) = subplot(2,2,compi+2);
+    plot(frequencies,squeeze(fftpower(comps2plot(compi),:)) ,<span class="string">'b'</span>,<span class="string">'Linewidth'</span>,1.5);
+    hold <span class="string">on</span>
+    plot(alphapeakfreq(comps2plot(compi)),alphapeakval(comps2plot(compi)),<span class="string">'*k'</span>);
+    set(gca,<span class="string">'xlim'</span>,[5 15]);
+    axis <span class="string">square</span>
+    title([<span class="string">'IC: '</span> num2str(comps2plot(compi)) <span class="string">', '</span> num2str(alphapeakfreq(comps2plot(compi))) <span class="string">' Hz'</span> ]);
+<span class="keyword">end</span>
+set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+</pre><pre class="codeoutput">Warning: When plotting pvalues in totoplot, use option 'conv' to minimize extrapolation effects
+Warning: When plotting pvalues in totoplot, use option 'conv' to minimize extrapolation effects
+</pre><img vspace="5" hspace="5" src="Code_Gulbinaite_CuttingEEG_2018_08.png" alt=""> <h2>Exploring DataSet 2 - RUN all the steps above<a name="13"></a></h2><p>load EEG data load('...\Dataset2.mat')</p><h2>Apply ICA weights to unfiltetered data:<a name="14"></a></h2><p>This allows to retain broadband spectral content of the EEG signal</p><pre class="codeinput"><span class="comment">% copy the weights from filtered to unfiltered dataset</span>
+EEG1_original.icawinv     = EEG.icawinv;
+EEG1_original.icasphere   = EEG.icasphere;
+EEG1_original.icaweights  = EEG.icaweights;
+EEG1_original.icachansind = EEG.icachansind;
+
+<span class="comment">% Get time series of ICs - all the subsequent analyses (power, phase, etc.) can be done one those</span>
+EEG1_original.icaact =  eeg_getica(EEG1_original);
+</pre><pre class="codeoutput">Recomputing ICA activations
+</pre><h2>END<a name="15"></a></h2><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% This code was created for the workshop "Separating alpha sources"
+% at CuttingEEG'18, Paris
+
+% Created by: Rasa Gulbinaite (rasagulbinaite.com)
+
+%% Add EEG lab to your path
+eeglabfolder = uigetdir([],'search for EEGLAB folder'); 
+% addpath(genpath(eeglabfolder))
+
+% load EEG data
+load('M:\CUTTING_EEG\Dataset1.mat')
+
+EEG1_original = EEG;
+%% Plotting channel power spectra
+
+% Parameters for FFT
+time4fft = [-1000 0];                             % time window for FFT
+tidx     = dsearchn(EEG.times',time4fft');        % time window in indices
+Nsig     = length(tidx(1):tidx(2));          
+fft_resolution = 0.1;                             % frequency resolution of the spectra                       
+Nfft = ceil( EEG.srate/fft_resolution );          % length of the FFT result
+frequencies = EEG.srate/2*linspace(0,1,Nfft/2+1); % frequencies
+
+
+% Alpha-band or where we will look for individual alpha peak frequencies 
+alphafreqs   = [7 13]; 
+alphafreqidx = dsearchn(frequencies',alphafreqs'); 
+
+
+% Define variables to store the results
+alphapeakfreq = zeros(1,EEG.nbchan);
+alphapeakval  = zeros(1,EEG.nbchan);
+
+
+% The actual FFT
+data4fft = EEG.data(:,tidx(1):tidx(2),:) ;                    % select only part inter-trial interval data
+fftresult = fft(data4fft,Nfft,2)/Nsig;
+fftpower  = mean(abs(fftresult(:,floor(1:Nfft/2+1),:)).^2,3); % compute power
+
+% Find alpha peaks in power spectra of each channel
+for chani = 1:EEG.nbchan
+    [alphapeakval(chani),alphapeakindex] = max(fftpower(chani,alphafreqidx(1):alphafreqidx(2)));
+    alphapeakfreq(chani) = frequencies(alphapeakindex+alphafreqidx(1)-1);
+end
+
+
+% PLOT
+chans2plot = {'Oz'};
+chans2plot_idx = find(strcmpi(chans2plot,{EEG.chanlocs.labels}));
+
+figure(1), clf, set(gcf,'name','Channel spectra')
+set(gcf,'color','w')
+
+subplot(121)
+plot(frequencies,fftpower);
+hold on
+h1 = plot(frequencies,fftpower(chans2plot_idx,:),'b-','Linewidth', 4,'MarkerFaceColor','w');
+set(gca,'xlim',[2 14],'ylim',[0 40],'box','off')
+axis square
+legend(h1,'Oz electrode')
+title('Power spectra across channels')
+
+subplot(122)
+plot(alphapeakfreq,alphapeakval,'b*')
+h2 = histc(alphapeakfreq,median(alphapeakfreq)-1:fft_resolution:median(alphapeakfreq)+1);
+hold on
+plot(median(alphapeakfreq)-1:fft_resolution:median(alphapeakfreq)+1,h2,'ro-')
+set(gca,'xlim',[median(alphapeakfreq)-1 median(alphapeakfreq)+1],'box','off')
+title('Peak frequency distribution across channels')
+axis square
+
+%% Remove eye-blink and other artifactual ICs (e.g. muscle artifacts):
+% can be identified by visual inspection (topography and power spectra) 
+% or specific toolboxes e.g. SASICA by Maximilian Chaumon https://github.com/dnacombo/SASICA/
+EEG.data = double(EEG.data);
+EEG.icaact =  eeg_getica(EEG);
+
+% PLOT
+figure(2), set(gcf,'name', 'ICs 1-6')
+for compi = 1:6
+    
+    subplot(1,6,compi)
+    topoplot(squeeze(EEG.icawinv(:,compi)),EEG.chanlocs,'plotrad',.75,'numcontour',0,'electrodes','off');
+    title({['IC: ' num2str(compi)]})
+    
+end
+set(gcf,'color','w')
+
+% Remove blink components
+ICs2remove  = [1 2]; % dataset2 ICs2remove  = 1;
+EEG = pop_subcomp(EEG,ICs2remove);
+
+% clear ICA information - we will run ICA again on filtered data
+EEG.icawinv     = [];
+EEG.icasphere   = [];
+EEG.icaweights  = [];
+EEG.icachansind = [];
+    
+%% Filter the data 5 to 15 Hz
+
+% Filter parameters
+freq_band = [5 15]; % in hz
+trans_width    = .15;
+idealresponse  = [ 0 0 1 1 0 0 ];
+filtfreqbounds = [ 0 (1-trans_width)*freq_band(1) freq_band(1) freq_band(2) freq_band(2)*(1+trans_width) EEG.srate/2 ]/(EEG.srate/2);
+filt_order     = round(3*(EEG.srate/freq_band(1))); % try changing 3 to 10, and plotting filter kernel
+filterweights  = firls(filt_order,filtfreqbounds,idealresponse);
+
+% PLOT filter kernel
+figure(3), clf, set(gcf,'name','Filter kernel')
+nyquist = EEG.srate/2;
+fft_filtkern  = abs(fft(filterweights));
+fft_filtkern  = fft_filtkern./max(fft_filtkern); % normalized to 1.0 for visual comparison ease
+hz_filtkern   = linspace(0,nyquist,filt_order/2+1);
+plot(hz_filtkern,fft_filtkern(1:ceil(length(fft_filtkern)/2)),'m-')
+set(gca,'xlim',[0 20])
+
+% Filter the data 5-15 Hz
+filterdata = zeros(EEG.nbchan,EEG.pnts,EEG.trials);
+for chani=1:EEG.nbchan
+%     disp(chani);
+    filterdata(chani,:,:) = reshape( filtfilt(filterweights,1,double(reshape(EEG.data(chani,:,:),1,EEG.pnts*EEG.trials))) ,EEG.pnts,EEG.trials);
+end
+
+% Alternative filtering using EEGLAB 
+% filterdata = pop_eegfiltnew( EEG, 5, 15,[],0); % band-pass filter
+
+% Replace EEG.data with filtered data
+EEG.data = filterdata;
+
+% save results
+% EEG.icaact = [];
+% EEG.data = single(EEG.data);
+% save('...\Dataset1_filtered.mat','EEG')
+
+%% Perform ICA only on the pre-stimulus data -1000 - 0 ms
+time4ica  = [-1 0];                       % in seconds
+EEG = pop_select(EEG, 'time', time4ica);  % trim the data
+
+% Run ICA on pre-stimulus aka trimmed data 
+ncomponents = 20;
+EEG.data = double(EEG.data);
+EEG      = pop_runica(EEG,'icatype','jader','dataset',1,'options',{ncomponents});
+
+% save results
+% EEG.icaact = [];
+% EEG.data = single(EEG.data);
+% save('...\Dataset1_filtered_withICA.mat','EEG')
+
+%% Plot alpha IC topographies and spectra
+
+% Parameters for FFT - same as before except
+Nsig = EEG.pnts;
+
+% Define variables to store the results
+fftpower      = zeros(ncomponents,length(frequencies));
+alphapeakfreq = zeros(1,ncomponents);
+alphapeakval  = zeros(1,ncomponents);
+
+% Get ICA activation
+EEG.icaact = eeg_getica(EEG);
+
+% The actual FFT loop    
+
+for compi = 1:ncomponents
+    % get data
+    data_signal = squeeze(EEG.icaact(compi,:,:)) ;
+    
+    % compute power
+    fftresult = fft(data_signal,Nfft)/Nsig;
+    fftpower(compi,:) = mean(abs(fftresult(floor(1:Nfft/2+1),:)).^2,2);
+    
+    [alphapeakval(compi),alphapeakindex] = max(fftpower(compi,alphafreqidx(1):alphafreqidx(2)));
+    alphapeakfreq(compi) = frequencies(alphapeakindex+alphafreqidx(1)-1);
+end
+
+% PLOT: component topographies (ICA weights) and component power spectra 
+figure(4), clf, set(gcf,'name', 'ICs 1-6')
+for compi = 1:6
+    
+    subplot(2,6,compi)
+    topoplot(squeeze(EEG.icawinv(:,compi)),EEG.chanlocs,'plotrad',.75,'numcontour',0,'electrodes','off');
+    
+    % Print dipole location above topoplot
+    title({['IC: ' num2str(compi)]})
+    
+    ax(compi+6) = subplot(2,6,compi+6);
+    plot(frequencies,squeeze(fftpower(compi,:)) ,'b','Linewidth',1.5);
+    hold on
+    plot(alphapeakfreq(compi),alphapeakval(compi),'*k');
+    
+    set(gca,'xlim',[5 15]);
+    title(['IC: ' num2str(compi) ', ' num2str(alphapeakfreq(compi)) ' Hz' ]);
+
+end
+set(gcf,'color','w')
+
+figure(5),clf, set(gcf,'name', 'ICs 7-12')
+for compi = 1:6
+    
+    subplot(2,6,compi)
+    topoplot(squeeze(EEG.icawinv(:,compi+6)),EEG.chanlocs,'plotrad',.75,'numcontour',0,'electrodes','off');
+    
+    % Print dipole location above topoplot
+    title({['IC: ' num2str(compi+6)]})
+    
+    ax(compi+6) = subplot(2,6,compi+6);
+    plot(frequencies,squeeze(fftpower(compi+6,:)) ,'b','Linewidth',1.5);
+    hold on
+    plot(alphapeakfreq(compi+6),alphapeakval(compi+6),'*k');
+    
+    set(gca,'xlim',[5 15]);
+    title(['IC: ' num2str(compi+6) ', ' num2str(alphapeakfreq(compi+6)) ' Hz' ]);
+    
+end
+set(gcf,'color','w')
+%% Creating Head Model
+% Done through EEGLab GUI
+
+%% Dipole fitting
+
+% Load headmodel
+load('M:\CUTTING_EEG\dipfitBEM.mat')
+
+% Use head model
+EEG.dipfit = dipfitBEM;
+
+% Perform dipole fitting
+EEGsingledipole = pop_multifit(EEG, [],'threshold',100,'rmout','on','dipoles',1);
+EEG.dipfit = EEGsingledipole.dipfit;
+
+% save
+% EEG.icaact      = [];
+% EEG.data = single(EEG.data);
+% save('...\Dataset1_filtered_withICA_dipfit.mat','EEG')
+
+%% Visualizing dipoles 
+
+figure(6)
+pop_dipplot(EEG, [], 'mri',[ eeglabfolder '\plugins\dipfit2.3\standard_BEM\standard_mri.mat'],'normlen', 'on','projlines','on'); 
+
+%% Find parietal and occipital dipoles based on anatomical coordinates
+
+% Coordinates from Haegens et al., 2014 NeuroImage
+rois = [ -20 -90 0; 20 -90 0; -20 -70 50; 20 -70 50]; % occ R ; occ L; par R; par L
+
+%  Reject overall poor dipole fits: dipoles for which rv > 5%
+EEG.dipfit.model  = dipfit_reject(EEG.dipfit.model, 5/100);
+
+% Compute euclidian distance (i.e. 3D distance) to all ROIs
+eucdist = zeros(4,numel(EEG.dipfit.model));
+for iroi = 1:size(rois,1)
+    for di = 1:numel(EEG.dipfit.model)
+        if EEG.dipfit.model(di).rv < 1  
+            eucdist(iroi,di)=sqrt( (EEG.dipfit.model(di).posxyz(1) - rois(iroi,1))^2 + (EEG.dipfit.model(di).posxyz(2) - rois(iroi,2))^2 + (EEG.dipfit.model(di).posxyz(3) - rois(iroi,3))^2 );
+            
+        else
+            eucdist(iroi,di) = NaN;
+        end
+    end
+end
+
+%% Find occipital & parietal ICs - sorting method using distance and RV info
+
+% OCCIPITAL
+dipoleinfo = zeros(ncomponents*2,4); %(1) eucldist (2) RV (3) which ROI (4) which IC 
+dipoleinfo(:,1) = [eucdist(1,:) eucdist(2,:) ];
+dipoleinfo(:,2) = repmat([EEG.dipfit.model.rv]',2,1 ); 
+dipoleinfo(:,3) = ceil(linspace(eps,2,40)');
+dipoleinfo(:,4) = repmat((1:ncomponents)',2,1); 
+
+dipoleinfo_sorted = sortrows(dipoleinfo,[1 2]); % first sorting by distance then by RV
+% dipoleinfo_sorted = sortrows(dipoleinfo,[2 1]); % first sorting by RV, then by euclidian distance
+occIC = dipoleinfo_sorted(1,4);
+
+% PARIETAL
+dipoleinfo(:,1) = [eucdist(3,:) eucdist(4,:) ];
+
+dipoleinfo_sorted = sortrows(dipoleinfo,[1 2]); % first sorting by distance then by RV
+% dipoleinfo_sorted = sortrows(dipoleinfo,[2 1]); % first sorting by RV, then by euclidian distance
+
+parIC = dipoleinfo_sorted(1,4);
+
+% if the same dipole was found as occ and par
+if occIC  == parIC
+    dipoleinfo(occIC,1) = NaN;
+    dipoleinfo_sorted = sortrows(dipoleinfo,[1 2]); 
+    parIC = dipoleinfo_sorted(1,4);
+end
+
+% PLOT
+comps2plot = [occIC parIC];
+titles = {'occipital' 'parietal'};
+
+figure(7), clf, set(gcf,'name', 'Alpha sources')
+for compi = 1:length(comps2plot)
+    subplot(2,2,compi)
+    topoplot(squeeze(EEG.icawinv(:,comps2plot(compi))),EEG.chanlocs,'plotrad',.75,'numcontour',0,'electrodes','off');
+    title(titles{compi})
+    
+    ax(compi+2) = subplot(2,2,compi+2);
+    plot(frequencies,squeeze(fftpower(comps2plot(compi),:)) ,'b','Linewidth',1.5);
+    hold on
+    plot(alphapeakfreq(comps2plot(compi)),alphapeakval(comps2plot(compi)),'*k');
+    set(gca,'xlim',[5 15]);
+    axis square
+    title(['IC: ' num2str(comps2plot(compi)) ', ' num2str(alphapeakfreq(comps2plot(compi))) ' Hz' ]);
+end
+set(gcf,'color','w')
+
+%% Exploring DataSet 2 - RUN all the steps above
+% load EEG data
+% load('...\Dataset2.mat')
+
+%% Apply ICA weights to unfiltetered data: 
+% This allows to retain broadband spectral content of the EEG signal 
+
+% copy the weights from filtered to unfiltered dataset
+EEG1_original.icawinv     = EEG.icawinv;
+EEG1_original.icasphere   = EEG.icasphere;
+EEG1_original.icaweights  = EEG.icaweights;
+EEG1_original.icachansind = EEG.icachansind;
+
+% Get time series of ICs - all the subsequent analyses (power, phase, etc.) can be done one those
+EEG1_original.icaact =  eeg_getica(EEG1_original);
+
+%% END
+##### SOURCE END #####
+--></body></html>
